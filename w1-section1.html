@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Section 1: Welcome & Framing — EDCI 487 Week 1</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --forest:    #1a2e1a;
+      --near-black:#1c1a14;
+      --moss:      #4a6741;
+      --sage:      #7a9e6e;
+      --sage-pale: #deebd4;
+      --clay:      #c4622d;
+      --ember:     #e8874a;
+      --sand:      #e8d5b0;
+      --cream:     #f5f0e8;
+      --white:     #fefcf8;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--cream); color: var(--near-black); margin-left: 220px; min-height: 100vh; }
+    body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0.035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 200px 200px; }
+
+    #progress-bar { position: fixed; top: 0; left: 220px; right: 0; height: 3px; background: linear-gradient(90deg, var(--clay), var(--ember)); transform-origin: left; transform: scaleX(0); transition: transform 0.1s linear; z-index: 1000; }
+
+    .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #2f4a2f; border-right: 1px solid rgba(122,158,110,0.2); z-index: 100; display: flex; flex-direction: column; padding: 2rem 0; overflow-y: auto; }
+    .sidebar-logo { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(122,158,110,0.5); padding: 0 1.5rem 1.5rem; border-bottom: 1px solid rgba(122,158,110,0.1); margin-bottom: 1.5rem; line-height: 1.6; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0; padding: 0; }
+    .nav-item { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.7rem 1.5rem; border-left: 3px solid transparent; text-decoration: none; transition: background 0.2s ease; }
+    .nav-item:hover { background: rgba(245,240,232,0.04); }
+    .nav-item.active { border-left-color: var(--clay); }
+    .nav-num { font-size: 0.68rem; font-weight: 500; color: rgba(245,240,232,0.25); flex-shrink: 0; margin-top: 2px; }
+    .nav-item.active .nav-num { color: var(--clay); }
+    .nav-label { font-size: 0.75rem; font-weight: 300; line-height: 1.4; color: rgba(245,240,232,0.35); }
+    .nav-item.active .nav-label { color: var(--cream); font-weight: 500; }
+
+    .block-inner { width: min(1080px, 100%); margin: 0 auto; }
+
+    /* section header */
+    .section-header { background: var(--forest); padding: 2.5rem 3rem; }
+    .section-header-row { display: flex; align-items: center; gap: 1.5rem; }
+    .sh-number { font-family: 'Playfair Display', serif; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.2); line-height: 1; flex-shrink: 0; user-select: none; }
+    .sh-center { flex: 1; }
+    .sh-label { font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--clay); margin-bottom: 0.35rem; }
+    .sh-title { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 700; color: var(--cream); line-height: 1.25; }
+    .sh-time { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.28); flex-shrink: 0; align-self: center; }
+
+    /* content blocks */
+    .content-block { background: var(--white); padding: 3.5rem 3rem 2.5rem; }
+    .content-block.alt { background: var(--cream); }
+    .content-block p { font-size: 1rem; line-height: 1.9; color: rgba(26,46,26,0.75); margin-bottom: 0.5rem; }
+    .content-block p:last-child { margin-bottom: 0; }
+    .content-block strong { font-weight: 500; color: var(--near-black); }
+
+    /* reveal animation */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal[data-delay="1"] { transition-delay: 0.1s; }
+    .reveal[data-delay="2"] { transition-delay: 0.2s; }
+    .reveal[data-delay="3"] { transition-delay: 0.3s; }
+
+    /* checklist */
+    .checklist-block { background: var(--sage-pale); padding: 3rem; }
+    .checklist-label { font-size: 0.85rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--moss); margin-bottom: 1.75rem; }
+    .checklist { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .checklist li {
+      display: flex; flex-direction: column; gap: 0.6rem;
+      font-size: 0.95rem; line-height: 1.7; color: var(--near-black);
+      background: rgba(255,255,255,0.7); border: 1px solid rgba(74,103,65,0.1);
+      border-radius: 12px; padding: 1.4rem 1.5rem;
+    }
+    .checklist li .check-num {
+      font-size: 0.65rem; font-weight: 600; color: var(--clay);
+      background: rgba(196,98,45,0.1); border-radius: 50%;
+      width: 26px; height: 26px; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+      letter-spacing: 0;
+    }
+    .checklist li .check-time {
+      font-size: 0.72rem; color: rgba(26,46,26,0.4); letter-spacing: 0.06em;
+      margin-top: 0.2rem;
+    }
+
+    /* transition card */
+    .transition-card { padding: 3rem; background: var(--forest); }
+    .transition-card p { font-size: 1rem; line-height: 1.8; color: rgba(245,240,232,0.65); font-style: italic; font-family: 'Playfair Display', serif; }
+    .transition-card-line { width: 40px; height: 2px; background: var(--clay); margin-bottom: 1.5rem; }
+
+    /* continue bar */
+    .continue-bar { background: var(--cream); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(74,103,65,0.12); }
+    .continue-bar-text { font-size: 0.8rem; color: rgba(26,46,26,0.45); letter-spacing: 0.06em; }
+    .continue-btn { display: inline-flex; align-items: center; gap: 0.75rem; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; color: var(--white); background: var(--clay); text-decoration: none; padding: 0.8rem 1.6rem; border-radius: 4px; transition: background 0.2s; }
+    .continue-btn:hover { background: var(--ember); }
+
+    /* begin section (duplicate from intro for consistency) */
+    .begin-section { background: var(--cream); padding: 4rem 3rem; display: flex; justify-content: space-between; align-items: center; gap: 4rem; }
+    .begin-text .begin-heading { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--forest); font-weight: 700; margin-bottom: 0.6rem; }
+    .begin-text .begin-sub { font-size: 1rem; line-height: 1.75; color: rgba(26,46,26,0.6); max-width: 480px; }
+    .begin-action { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; flex-shrink: 0; }
+    .btn-begin { display: inline-flex; align-items: center; gap: 1rem; background: var(--clay); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; padding: 1rem 2rem; border-radius: 4px; transition: background 0.2s; }
+    .btn-begin:hover { background: var(--ember); }
+    .btn-begin .arrow { width: 20px; height: 1px; background: currentColor; position: relative; transition: width 0.25s; }
+    .btn-begin:hover .arrow { width: 28px; }
+    .btn-begin .arrow::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border-right: 1px solid currentColor; border-top: 1px solid currentColor; transform: rotate(45deg); }
+    .time-note { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(26,46,26,0.35); }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      body { margin-left: 0; }
+      .section-header, .content-block, .checklist-block, .transition-card, .continue-bar, .begin-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .sh-number { font-size: 5rem; }
+      .begin-section { flex-direction: column; align-items: flex-start; }
+      .begin-action { align-items: flex-start; }
+      .checklist { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">EDCI 487<br>Climate Change Education<br>Week 1</div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="week1-intro (1).html">
+      <span class="nav-num">↑</span>
+      <span class="nav-label">Intro &amp; Overview</span>
+    </a>
+    <a class="nav-item active" href="w1-section1.html">
+      <span class="nav-num">01</span>
+      <span class="nav-label">Welcome &amp; Framing</span>
+    </a>
+    <a class="nav-item" href="w1-section2.html">
+      <span class="nav-num">02</span>
+      <span class="nav-label">Meet Ailton Krenak</span>
+    </a>
+    <a class="nav-item" href="w1-section3.html">
+      <span class="nav-num">03</span>
+      <span class="nav-label">The Superorganism</span>
+    </a>
+    <a class="nav-item" href="w1-section4.html">
+      <span class="nav-num">04</span>
+      <span class="nav-label">Before You Arrive</span>
+    </a>
+  </nav>
+</aside>
+
+<!-- SECTION HEADER -->
+<section class="section-header">
+  <div class="block-inner section-header-row">
+    <div class="sh-number">01</div>
+    <div class="sh-center">
+      <div class="sh-label">Section 1 of 4</div>
+      <div class="sh-title reveal">Welcome &amp; Framing</div>
+    </div>
+    <div class="sh-time reveal">~3 minutes</div>
+  </div>
+</section>
+
+<!-- INTRO TEXT -->
+<section class="content-block reveal">
+  <div class="block-inner">
+    <p>Climate change education is not only about data, science, or policy.</p>
+    <p>
+      It is also about how we live within the cycles of life — how we <strong>feel and sense our
+      entanglement with the Earth's metabolism</strong>, and how our exchanges with one another and
+      with the world around us shape the future we share.
+    </p>
+    <p>
+      This week we begin at the beginning. Not with facts or frameworks, but with a question:
+      <strong>What does the climate emergency actually mean for an educator?</strong> Not just what
+      to teach — but how to show up to it. With your students. With your community. With yourself.
+    </p>
+  </div>
+</section>
+
+<!-- CHECKLIST -->
+<section class="checklist-block reveal">
+  <div class="block-inner">
+    <div class="checklist-label">Your pre-class work</div>
+    <ul class="checklist">
+      <li>
+        <span class="check-num">01</span>
+        <span>Read this short orientation to Ailton Krenak and his ideas — <strong>Section 2</strong></span>
+        <span class="check-time">~5 minutes</span>
+      </li>
+      <li>
+        <span class="check-num">02</span>
+        <span>Read <strong>Ideas to Postpone the End of the World</strong> — the PDF is attached in Section 2</span>
+        <span class="check-time">~60–90 minutes</span>
+      </li>
+      <li>
+        <span class="check-num">03</span>
+        <span>Watch <strong>The Superorganism and the Future</strong> — embedded in Section 3</span>
+        <span class="check-time">~45 minutes</span>
+      </li>
+      <li>
+        <span class="check-num">04</span>
+        <span>Sit with one reflection question in <strong>Section 4</strong> before you arrive</span>
+        <span class="check-time">No formal submission</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- BODY -->
+<section class="content-block alt reveal">
+  <div class="block-inner">
+    <p>
+      The module itself takes about 15 minutes. The reading and video are the real work — give them
+      time and space, not a cramped half-hour between other tasks.
+    </p>
+    <p>
+      Come to class having sat with Krenak's ideas. There are no right answers to bring.
+      There are only the questions that stayed with you.
+    </p>
+  </div>
+</section>
+
+<div class="transition-card reveal">
+  <div class="block-inner">
+    <div class="transition-card-line"></div>
+    <p>
+      "My main reason for postponing the end of the world is so we've always got time
+      for one more story. If we can make time for that, then we'll be forever putting
+      off the world's demise." — Ailton Krenak
+    </p>
+  </div>
+</div>
+
+
+<section class="begin-section reveal">
+  <div class="block-inner" style="display:flex; justify-content:space-between; align-items:center; gap:4rem; width:100%; flex-wrap:wrap;">
+    <div class="begin-text">
+      <h2 class="begin-heading">Ready to continue?</h2>
+      <p class="begin-sub">
+        Next, a short context on Krenak — where he comes from, why this text matters,
+        and what to look for as you read.
+      </p>
+    </div>
+    <div class="begin-action">
+      <a class="btn-begin" href="w1-section2.html">
+        Section 2 <span class="arrow"></span>
+      </a>
+      <span class="time-note">Next: Meet Ailton Krenak</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const scrolled = max > 0 ? Math.min(doc.scrollTop / max, 1) : 1;
+    document.getElementById('progress-bar').style.transform = `scaleX(${scrolled * 0.25})`;
+  });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

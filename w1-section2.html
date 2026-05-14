@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Section 2: Meet Ailton Krenak — EDCI 487 Week 1</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --forest:    #1a2e1a;
+      --near-black:#1c1a14;
+      --moss:      #4a6741;
+      --sage:      #7a9e6e;
+      --sage-pale: #deebd4;
+      --clay:      #c4622d;
+      --ember:     #e8874a;
+      --sand:      #e8d5b0;
+      --cream:     #f5f0e8;
+      --white:     #fefcf8;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--cream); color: var(--near-black); margin-left: 220px; min-height: 100vh; }
+    body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0.035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 200px 200px; }
+
+    #progress-bar { position: fixed; top: 0; left: 220px; right: 0; height: 3px; background: linear-gradient(90deg, var(--clay), var(--ember)); transform-origin: left; transform: scaleX(0.25); transition: transform 0.1s linear; z-index: 1000; }
+
+    .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #2f4a2f; border-right: 1px solid rgba(122,158,110,0.2); z-index: 100; display: flex; flex-direction: column; padding: 2rem 0; overflow-y: auto; }
+    .sidebar-logo { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(122,158,110,0.5); padding: 0 1.5rem 1.5rem; border-bottom: 1px solid rgba(122,158,110,0.1); margin-bottom: 1.5rem; line-height: 1.6; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 0; padding: 0; }
+    .nav-item { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.7rem 1.5rem; border-left: 3px solid transparent; text-decoration: none; transition: background 0.2s ease; }
+    .nav-item:hover { background: rgba(245,240,232,0.04); }
+    .nav-item.active { border-left-color: var(--clay); }
+    .nav-num { font-size: 0.68rem; font-weight: 500; color: rgba(245,240,232,0.25); flex-shrink: 0; margin-top: 2px; }
+    .nav-item.active .nav-num { color: var(--clay); }
+    .nav-label { font-size: 0.75rem; font-weight: 300; line-height: 1.4; color: rgba(245,240,232,0.35); }
+    .nav-item.active .nav-label { color: var(--cream); font-weight: 500; }
+
+    .block-inner { width: min(1080px, 100%); margin: 0 auto; }
+
+    .section-header { background: var(--forest); padding: 2.5rem 3rem; }
+    .section-header-row { display: flex; align-items: center; gap: 1.5rem; }
+    .sh-number { font-family: 'Playfair Display', serif; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.2); line-height: 1; flex-shrink: 0; user-select: none; }
+    .sh-center { flex: 1; }
+    .sh-label { font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--clay); margin-bottom: 0.35rem; }
+    .sh-title { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 700; color: var(--cream); line-height: 1.25; }
+    .sh-time { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.28); flex-shrink: 0; align-self: center; }
+
+    .content-block { background: var(--white); padding: 3.5rem 3rem 2.5rem; }
+    .content-block.alt { background: var(--cream); }
+    .content-block p { font-size: 1rem; line-height: 1.9; color: rgba(26,46,26,0.75); margin-bottom: 0.5rem; }
+    .content-block p:last-child { margin-bottom: 0; }
+    .content-block strong { font-weight: 500; color: var(--near-black); }
+
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal[data-delay="1"] { transition-delay: 0.1s; }
+    .reveal[data-delay="2"] { transition-delay: 0.2s; }
+
+    /* bio card */
+    .bio-block { background: var(--forest); padding: 3.5rem 3rem; }
+    .bio-inner { display: grid; grid-template-columns: auto 1fr; gap: 3rem; max-width: 1080px; margin: 0 auto; align-items: stretch; }
+    .bio-photo { flex-shrink: 0; }
+    .bio-photo img {
+      width: 280px; height: 340px; object-fit: cover;
+      border-radius: 14px;
+      border: 2px solid rgba(122,158,110,0.3);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+    }
+    .bio-label { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); margin-bottom: 1rem; font-weight: 500; }
+    .bio-name { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--cream); line-height: 1.2; margin-bottom: 1.5rem; }
+    .bio-body { font-size: 0.95rem; line-height: 1.85; color: rgba(245,240,232,0.65); font-weight: 300; }
+    .bio-body p + p { margin-top: 0.85rem; }
+    .bio-divider { width: 36px; height: 2px; background: var(--clay); margin: 1.5rem 0; }
+    .bio-stat-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .bio-stat { display: flex; gap: 1rem; align-items: flex-start; }
+    .bio-stat-marker { font-size: 0.62rem; font-weight: 500; color: var(--clay); text-transform: uppercase; letter-spacing: 0.1em; min-width: 80px; margin-top: 0.2rem; flex-shrink: 0; }
+    .bio-stat-text { font-size: 0.88rem; line-height: 1.6; color: rgba(245,240,232,0.65); }
+
+    /* focus prompts */
+    .focus-block { background: #d6e8cd; padding: 4.5rem 3rem; position: relative; overflow: hidden; }
+    .focus-block::before { content: ''; position: absolute; top: -120px; right: -120px; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, rgba(122,158,110,0.18) 0%, transparent 70%); pointer-events: none; }
+    .focus-block::after { content: ''; position: absolute; bottom: -100px; left: -60px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(74,103,65,0.08) 0%, transparent 70%); pointer-events: none; }
+    .focus-header { margin-bottom: 2.5rem; position: relative; }
+    .focus-label { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--moss); margin-bottom: 0.6rem; }
+    .focus-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--forest); line-height: 1.3; }
+    .focus-title span { color: rgba(26,46,26,0.35); font-weight: 400; }
+    .focus-header-line { width: 40px; height: 2px; background: var(--moss); margin-top: 1.2rem; border-radius: 1px; }
+    .focus-list { list-style: none; counter-reset: focus; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; position: relative; }
+    .focus-item { counter-increment: focus; background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); border-radius: 10px; padding: 1.2rem 1.3rem; position: relative; border: 1px solid rgba(74,103,65,0.1); transition: border-color 0.25s, box-shadow 0.25s; }
+    .focus-item:hover { border-color: rgba(74,103,65,0.25); box-shadow: 0 4px 20px rgba(26,46,26,0.06); }
+    .focus-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: rgba(74,103,65,0.12); line-height: 1; margin-bottom: 0.5rem; }
+    .focus-num::before { content: counter(focus); }
+    .focus-text { font-size: 0.95rem; line-height: 1.8; color: rgba(26,46,26,0.6); font-weight: 300; }
+    .focus-text strong { color: var(--forest); font-weight: 500; }
+    .focus-text .line { display: block; }
+
+    /* PDF attachment */
+    .attach-block { background: var(--white); padding: 3.5rem 3rem; border-top: 1px solid rgba(74,103,65,0.1); }
+    .attach-label { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sage); margin-bottom: 1.25rem; font-weight: 500; }
+    .attach-card {
+      display: flex; align-items: center; gap: 1.5rem;
+      background: var(--cream);
+      border: 1px solid rgba(74,103,65,0.18);
+      border-radius: 14px;
+      padding: 1.5rem 2rem;
+      text-decoration: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      max-width: 680px;
+    }
+    .attach-card:hover { border-color: var(--clay); box-shadow: 0 4px 20px rgba(196,98,45,0.1); }
+    .attach-icon {
+      width: 52px; height: 60px; background: var(--forest);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .attach-icon svg { width: 26px; height: 26px; fill: var(--sand); }
+    .attach-info { flex: 1; }
+    .attach-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--forest); margin-bottom: 0.3rem; font-weight: 700; }
+    .attach-meta { font-size: 0.78rem; color: rgba(26,46,26,0.5); }
+    .attach-cta { font-size: 0.75rem; font-weight: 500; color: var(--clay); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
+
+    .transition-card { padding: 3rem; background: var(--forest); }
+    .transition-card p { font-size: 1rem; line-height: 1.8; color: rgba(245,240,232,0.65); font-style: italic; font-family: 'Playfair Display', serif; }
+    .transition-card-line { width: 40px; height: 2px; background: var(--clay); margin-bottom: 1.5rem; }
+
+    .continue-bar { background: var(--cream); padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(74,103,65,0.12); }
+    .continue-bar-text { font-size: 0.8rem; color: rgba(26,46,26,0.45); letter-spacing: 0.06em; }
+    .continue-btn { display: inline-flex; align-items: center; gap: 0.75rem; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.06em; color: var(--white); background: var(--clay); text-decoration: none; padding: 0.8rem 1.6rem; border-radius: 4px; transition: background 0.2s; }
+    .continue-btn:hover { background: var(--ember); }
+
+    .begin-section { background: var(--cream); padding: 4rem 3rem; display: flex; justify-content: space-between; align-items: center; gap: 4rem; }
+    .begin-text .begin-heading { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--forest); font-weight: 700; margin-bottom: 0.6rem; }
+    .begin-text .begin-sub { font-size: 1rem; line-height: 1.75; color: rgba(26,46,26,0.6); max-width: 480px; }
+    .begin-action { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; flex-shrink: 0; }
+    .btn-begin { display: inline-flex; align-items: center; gap: 1rem; background: var(--clay); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; padding: 1rem 2rem; border-radius: 4px; transition: background 0.2s; }
+    .btn-begin:hover { background: var(--ember); }
+    .btn-begin .arrow { width: 20px; height: 1px; background: currentColor; position: relative; transition: width 0.25s; }
+    .btn-begin:hover .arrow { width: 28px; }
+    .btn-begin .arrow::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border-right: 1px solid currentColor; border-top: 1px solid currentColor; transform: rotate(45deg); }
+    .time-note { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(26,46,26,0.35); }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      body { margin-left: 0; }
+      .section-header, .content-block, .bio-block, .focus-block, .attach-block, .continue-bar, .begin-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .sh-number { font-size: 5rem; }
+      .bio-inner { grid-template-columns: 1fr; gap: 2rem; }
+      .bio-photo img { width: 100%; height: 260px; }
+      .bio-photo { text-align: center; }
+      .focus-list { grid-template-columns: 1fr; }
+      .focus-num { font-size: 2.2rem; }
+      .begin-section { flex-direction: column; align-items: flex-start; }
+      .begin-action { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">EDCI 487<br>Climate Change Education<br>Week 1</div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="week1-intro (1).html">
+      <span class="nav-num">↑</span>
+      <span class="nav-label">Intro &amp; Overview</span>
+    </a>
+    <a class="nav-item" href="w1-section1.html">
+      <span class="nav-num">01</span>
+      <span class="nav-label">Welcome &amp; Framing</span>
+    </a>
+    <a class="nav-item active" href="w1-section2.html">
+      <span class="nav-num">02</span>
+      <span class="nav-label">Meet Ailton Krenak</span>
+    </a>
+    <a class="nav-item" href="w1-section3.html">
+      <span class="nav-num">03</span>
+      <span class="nav-label">The Superorganism</span>
+    </a>
+    <a class="nav-item" href="w1-section4.html">
+      <span class="nav-num">04</span>
+      <span class="nav-label">Before You Arrive</span>
+    </a>
+  </nav>
+</aside>
+
+<!-- SECTION HEADER -->
+<section class="section-header">
+  <div class="block-inner section-header-row">
+    <div class="sh-number">02</div>
+    <div class="sh-center">
+      <div class="sh-label">Section 2 of 4</div>
+      <div class="sh-title reveal">Meet Ailton Krenak</div>
+    </div>
+    <div class="sh-time reveal">~5 minutes</div>
+  </div>
+</section>
+
+<!-- INTRO -->
+<section class="content-block reveal">
+  <div class="block-inner">
+    <p>Before you open the reading, a little context — not to tell you what to think, but to help you orient yourself as you enter the text.</p>
+    <p>
+      <em>Ideas to Postpone the End of the World</em> is not a policy document or a science report. It is a
+      philosophical provocation — three lectures, delivered in Lisbon, by an Indigenous thinker whose
+      life and land have been shaped by exactly the forces this course examines.
+    </p>
+  </div>
+</section>
+
+<!-- BIO -->
+<section class="bio-block reveal">
+  <div class="bio-inner">
+    <div class="bio-photo">
+      <img src="Aliton Krenak.png" alt="Ailton Krenak" />
+    </div>
+    <div>
+      <div class="bio-label">About the Author</div>
+      <div class="bio-name">Ailton Krenak</div>
+      <div class="bio-body">
+        <p>Ailton Krenak is a Brazilian Indigenous leader, philosopher, and environmental activist from the Krenak Nation. His homeland runs along the Doce River — called <em>Watu</em>, meaning "grandfather" — in Minas Gerais, Brazil.</p>
+        <p>In 2015, a mining disaster sent 43.7 million cubic metres of toxic mud into Watu, putting the river into what Krenak calls "a coma." This loss shapes everything in the text you are about to read.</p>
+        <p>Krenak was instrumental in writing Indigenous land rights into Brazil's 1988 Constitution. He remains one of the most important living voices on colonialism, ecological destruction, and what it means to be human on this Earth.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOCUS PROMPTS -->
+<section class="focus-block reveal">
+  <div class="block-inner">
+    <div class="focus-header">
+      <div class="focus-label">As you read, notice</div>
+      <div class="focus-title">Four questions to hold <span>while you're in the text</span></div>
+      <div class="focus-header-line"></div>
+    </div>
+    <ol class="focus-list">
+      <li class="focus-item">
+        <div class="focus-num"></div>
+        <div class="focus-text">
+          <span class="line">How does Krenak describe the relationship between <strong>humanity and Earth</strong>?</span>
+          <span class="line">What assumptions does he challenge — and what does he put in their place?</span>
+        </div>
+      </li>
+      <li class="focus-item">
+        <div class="focus-num"></div>
+        <div class="focus-text">
+          <span class="line">What does he mean by the <strong>"Humanity Club"</strong> — and who gets left out of it?</span>
+          <span class="line">How does this connect to the colonial histories you may already know?</span>
+        </div>
+      </li>
+      <li class="focus-item">
+        <div class="focus-num"></div>
+        <div class="focus-text">
+          <span class="line">What do concepts like <strong>Watu as grandfather</strong> or the <strong>Takukrak mountains</strong> tell us about different ways of knowing and relating to place?</span>
+        </div>
+      </li>
+      <li class="focus-item">
+        <div class="focus-num"></div>
+        <div class="focus-text">
+          <span class="line">What does any of this have to do with <strong>your role as an educator</strong> — in this moment, in this country, with these students?</span>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- PDF ATTACHMENT -->
+<section class="attach-block reveal">
+  <div class="block-inner">
+    <div class="attach-label">Required Reading — Attached Below</div>
+    <a class="attach-card" href="Ideas to Postpone the End of the World Ailton Krenak.pdf" target="_blank">
+      <div class="attach-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 13h8v1.5H8V13zm0 3h8v1.5H8V16zm0-6h4v1.5H8V10z"/>
+        </svg>
+      </div>
+      <div class="attach-info">
+        <div class="attach-title">Ideas to Postpone the End of the World</div>
+        <div class="attach-meta">Ailton Krenak · Translated by Anthony Doyle · PDF · 43 pages · allow 60–90 min</div>
+      </div>
+      <span class="attach-cta">Open PDF →</span>
+    </a>
+  </div>
+</section>
+
+<div class="transition-card reveal">
+  <div class="block-inner">
+    <div class="transition-card-line"></div>
+    <p>
+      "For a long time, we have been alienated from the organism to which we belong — the earth.
+      So much so that we began to think of Earth and Humanity as two separate entities.
+      I can't see anything on Earth that is not Earth." — Ailton Krenak
+    </p>
+  </div>
+</div>
+
+
+<section class="begin-section reveal">
+  <div class="block-inner" style="display:flex; justify-content:space-between; align-items:center; gap:4rem; width:100%; flex-wrap:wrap;">
+    <div class="begin-text">
+      <h2 class="begin-heading">Read the text first.</h2>
+      <p class="begin-sub">
+        Open the PDF above, read Krenak, and then continue to Section 3
+        where you'll find the video — and three questions to watch it with.
+      </p>
+    </div>
+    <div class="begin-action">
+      <a class="btn-begin" href="w1-section3.html">
+        Section 3 <span class="arrow"></span>
+      </a>
+      <span class="time-note">Next: The Superorganism</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const scrolled = max > 0 ? Math.min(doc.scrollTop / max, 1) : 1;
+    const base = 0.25;
+    document.getElementById('progress-bar').style.transform = `scaleX(${base + scrolled * 0.25})`;
+  });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
