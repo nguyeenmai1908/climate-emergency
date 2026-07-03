@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --forest:   #1a2e1a;
+      --forest:   #2d5a3f;
       --earth:    #3d2b1f;
       --moss:     #4a6741;
       --sage:     #7a9e6e;
@@ -16,373 +16,129 @@
       --cream:    #f5f0e8;
       --ember:    #e8874a;
       --white:    #fefcf8;
+      --sage-pale:#deebd4;
+      --near-black:#1c1a14;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
+    body { background: var(--forest); color: var(--cream); font-family: 'DM Sans', sans-serif; font-weight: 300; overflow-x: hidden; min-height: 100vh; }
 
-    body {
-      background: var(--forest);
-      color: var(--cream);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      overflow-x: hidden;
-      min-height: 100vh;
-    }
+    /* HAMBURGER TOGGLE */
+    .sidebar-toggle { position: fixed; top: 1.25rem; left: 1.25rem; z-index: 200; width: 40px; height: 40px; background: rgba(47,74,47,0.9); border: 1px solid rgba(122,158,110,0.25); border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 0; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: background 0.2s; }
+    .sidebar-toggle:hover { background: rgba(47,74,47,1); }
+    .sidebar-toggle .bar { display: block; width: 18px; height: 2px; background: var(--cream); border-radius: 1px; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .sidebar-toggle.open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .sidebar-toggle.open .bar:nth-child(2) { opacity: 0; }
+    .sidebar-toggle.open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-    .sidebar {
-      position: fixed;
-      top: 0; left: 0;
-      width: 220px; height: 100vh;
-      background: #2f4a2f;
-      border-right: 1px solid rgba(122,158,110,0.2);
-      z-index: 100;
-      display: flex; flex-direction: column;
-      padding: 2rem 0;
-      overflow-y: auto;
-    }
+    /* SIDEBAR OVERLAY */
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 140; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
 
-    .sidebar-logo {
-      font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
-      color: rgba(122,158,110,0.5);
-      padding: 0 1.5rem 1.5rem;
-      border-bottom: 1px solid rgba(122,158,110,0.1);
-      margin-bottom: 1.5rem; line-height: 1.6;
-    }
-
-    .sidebar-nav { display: flex; flex-direction: column; gap: 0; padding: 0; }
-
-    .nav-item {
-      display: flex; align-items: flex-start; gap: 0.6rem;
-      padding: 0.7rem 1.5rem;
-      border-left: 3px solid transparent;
-      text-decoration: none;
-      transition: background 0.2s ease;
-      flex-wrap: wrap;
-    }
+    /* SIDEBAR */
+    .sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; background: #2f4a2f; border-right: 1px solid rgba(122,158,110,0.2); z-index: 150; display: flex; flex-direction: column; align-items: stretch; padding: 4.5rem 0 2rem; overflow-y: auto; transform: translateX(-100%); transition: transform 0.3s ease; text-align: left; }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-logo { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(122,158,110,0.5); padding: 0 1rem 1.5rem 2rem; border-bottom: 1px solid rgba(122,158,110,0.1); margin-bottom: 1.5rem; line-height: 1.6; }
+    .sidebar-nav { display: flex; flex-direction: column; padding: 0; }
+    .nav-item { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.7rem 1rem 0.7rem 2rem; position: relative; text-decoration: none; transition: background 0.2s ease; width: 100%; }
     .nav-item:hover { background: rgba(245,240,232,0.04); }
-    .nav-item.active { border-left-color: var(--clay); }
-    .nav-num { font-size: 0.68rem; font-weight: 500; color: rgba(245,240,232,0.25); flex-shrink: 0; margin-top: 2px; }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--clay); }
+    .nav-num { font-size: 0.68rem; font-weight: 500; color: rgba(245,240,232,0.25); width: 1.5rem; flex-shrink: 0; text-align: left; }
     .nav-item.active .nav-num { color: var(--clay); }
-    .nav-label { font-size: 0.75rem; font-weight: 300; line-height: 1.4; color: rgba(245,240,232,0.35); flex: 1; min-width: 0; }
+    .nav-label { font-size: 0.75rem; font-weight: 300; line-height: 1.4; color: rgba(245,240,232,0.35); flex: 1; min-width: 0; text-align: left; }
     .nav-item.active .nav-label { color: var(--cream); font-weight: 500; }
-    .nav-time { font-size: 0.6rem; color: rgba(245,240,232,0.22); letter-spacing: 0.06em; flex-shrink: 0; margin-top: 2px; }
+    .nav-time { font-size: 0.6rem; color: rgba(245,240,232,0.22); letter-spacing: 0.06em; flex-shrink: 0; white-space: nowrap; }
 
-    .page-layout { margin-left: 220px; }
+    .page-layout { margin-left: 0; }
 
-    /* grain */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 100; opacity: 0.6;
-    }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 100; opacity: 0.6; }
 
-    /* ── HERO ── */
-    .hero {
-      min-height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      position: relative;
-      overflow: hidden;
-    }
-
+    /* HERO */
+    .hero { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; position: relative; overflow: hidden; }
     .hero-bg { position: absolute; inset: 0; overflow: hidden; }
-    .ring {
-      position: absolute; border-radius: 50%;
-      border: 1px solid rgba(122,158,110,0.12);
-      animation: expandRing 8s ease-out infinite;
-    }
+    .ring { position: absolute; border-radius: 50%; border: 1px solid rgba(122,158,110,0.12); animation: expandRing 8s ease-out infinite; }
     .ring:nth-child(1) { width: 300px; height: 300px; top: 10%; left: 60%; animation-delay: 0s; }
     .ring:nth-child(2) { width: 500px; height: 500px; top: 5%;  left: 55%; animation-delay: 1.5s; }
     .ring:nth-child(3) { width: 700px; height: 700px; top: -2%; left: 50%; animation-delay: 3s; }
     .ring:nth-child(4) { width: 900px; height: 900px; top: -8%; left: 45%; animation-delay: 4.5s; }
+    @keyframes expandRing { 0% { opacity: 0; transform: scale(0.8); } 20% { opacity: 1; } 100% { opacity: 0; transform: scale(1.2); } }
 
-    @keyframes expandRing {
-      0%   { opacity: 0; transform: scale(0.8); }
-      20%  { opacity: 1; }
-      100% { opacity: 0; transform: scale(1.2); }
-    }
+    .hero-slash { position: absolute; top: 0; right: 0; width: 45%; height: 100%; background: linear-gradient(135deg, transparent 40%, rgba(74,103,65,0.15) 40%); pointer-events: none; }
 
-    .hero-slash {
-      position: absolute; top: 0; right: 0;
-      width: 45%; height: 100%;
-      background: linear-gradient(135deg, transparent 40%, rgba(74,103,65,0.15) 40%);
-      pointer-events: none;
-    }
-
-    nav {
-      position: relative; z-index: 10;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 2rem 3.5rem;
-      border-bottom: 1px solid rgba(122,158,110,0.2);
-      animation: fadeDown 0.8s ease both;
-    }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
+    .top-nav { position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 2rem 3.5rem 2rem 5rem; border-bottom: 1px solid rgba(122,158,110,0.2); animation: fadeDown 0.8s ease both; }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
     .nav-course { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sage); }
     .nav-week { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(232,213,176,0.5); }
     .nav-week span { display: inline-block; width: 28px; height: 1px; background: var(--clay); }
 
-    .hero-content {
-      position: relative; z-index: 10;
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 4rem 3.5rem 2rem;
-      max-width: 900px;
-    }
-
-    .week-label {
-      font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--clay); margin-bottom: 1.5rem;
-      opacity: 0; animation: fadeUp 0.8s ease 0.3s both;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .hero-title {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(3rem, 7vw, 6.5rem);
-      font-weight: 900; line-height: 0.95; letter-spacing: -0.02em;
-      margin-bottom: 0.3em;
-      opacity: 0; animation: fadeUp 0.9s ease 0.5s both;
-    }
+    .hero-content { position: relative; z-index: 10; display: flex; flex-direction: column; justify-content: center; padding: 4rem 3.5rem 2rem; max-width: 900px; }
+    .week-label { font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--clay); margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.8s ease 0.3s both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 900; line-height: 0.95; letter-spacing: -0.02em; margin-bottom: 0.3em; opacity: 0; animation: fadeUp 0.9s ease 0.5s both; }
     .hero-title .line-1 { color: var(--white); display: block; }
     .hero-title .line-2 { color: transparent; -webkit-text-stroke: 1.5px var(--sage); display: block; }
+    .hero-subtitle { font-family: 'Playfair Display', serif; font-style: italic; font-size: clamp(1.1rem, 2.5vw, 1.6rem); color: var(--ember); margin-bottom: 1.5rem; opacity: 0; animation: fadeUp 0.8s ease 0.7s both; }
+    .hero-desc { font-size: 1rem; line-height: 1.8; color: rgba(245,240,232,0.6); max-width: 580px; font-weight: 300; opacity: 0; animation: fadeUp 0.8s ease 0.85s both; }
 
-    .hero-subtitle {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: clamp(1.1rem, 2.5vw, 1.6rem);
-      color: var(--ember);
-      margin-bottom: 1.5rem;
-      opacity: 0; animation: fadeUp 0.8s ease 0.7s both;
-    }
-
-    .hero-desc {
-      font-size: 1rem; line-height: 1.8; color: rgba(245,240,232,0.6);
-      max-width: 580px; font-weight: 300;
-      opacity: 0; animation: fadeUp 0.8s ease 0.85s both;
-    }
-
-    /* hero stats */
-    .hero-stats {
-      display: flex; position: relative; z-index: 10;
-      border-top: 1px solid rgba(122,158,110,0.15);
-      opacity: 0; animation: fadeUp 0.8s ease 1s both;
-    }
-
-    .stat {
-      flex: 1; padding: 2rem 3.5rem;
-      border-right: 1px solid rgba(122,158,110,0.15);
-    }
+    /* STATS BAR */
+    .hero-stats { display: flex; position: relative; z-index: 10; border-top: 1px solid rgba(122,158,110,0.15); opacity: 0; animation: fadeUp 0.8s ease 1s both; background: var(--clay); }
+    .stat { flex: 1; padding: 1.2rem 3.5rem; border-right: 1px solid rgba(255,255,255,0.2); }
     .stat:last-child { border-right: none; }
+    .stat-number { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--white); line-height: 1; margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.7); white-space: nowrap; }
 
-    .stat-number {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.8rem; font-weight: 700;
-      color: var(--white); line-height: 1; margin-bottom: 0.4rem;
-    }
+    /* UNIT FRAMING */
+    .unit-framing { background: var(--forest); padding: 4rem 3.5rem; }
+    .unit-framing-inner { max-width: 1200px; margin: 0 auto; }
+    .unit-eyebrow { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--clay); margin-bottom: 1rem; }
+    .unit-q { font-family: 'Playfair Display', serif; font-size: clamp(1.2rem, 2.5vw, 1.7rem); font-style: italic; color: var(--cream); line-height: 1.5; max-width: 100%; margin-bottom: 1.5rem; }
+    .unit-desc { font-size: 0.95rem; line-height: 1.85; color: rgba(245,240,232,0.55); max-width: 100%; }
 
-    .stat-label {
-      font-size: 0.72rem; letter-spacing: 0.12em;
-      text-transform: uppercase; color: rgba(245,240,232,0.4);
-    }
+    /* OVERVIEW */
+    .overview { background: var(--cream); padding: 5rem 3.5rem; }
+    .overview-inner { display: grid; grid-template-columns: 1fr 1.4fr; gap: 5rem; max-width: 1200px; margin: 0 auto; }
+    .section-label { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--moss); margin-bottom: 0.75rem; font-weight: 500; }
+    .overview-heading { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--forest); line-height: 1.25; }
+    .overview-body { font-size: 1rem; line-height: 1.85; color: rgba(26,46,26,0.65); font-weight: 300; margin-bottom: 2.5rem; }
 
-    /* scroll hint */
-    .scroll-hint {
-      position: absolute; bottom: 2rem; left: 3.5rem;
-      display: flex; align-items: center; gap: 1rem;
-      font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
-      color: rgba(245,240,232,0.25); z-index: 10;
-    }
-    .scroll-line {
-      width: 40px; height: 1px; background: rgba(122,158,110,0.4);
-      animation: scrollPulse 2s ease-in-out infinite;
-    }
-    @keyframes scrollPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+    .outcomes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .outcome-card { background: var(--white); border: 1px solid rgba(74,103,65,0.12); border-radius: 12px; padding: 1.4rem; }
+    .outcome-number { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--clay); margin-bottom: 0.5rem; }
+    .outcome-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; color: var(--forest); margin-bottom: 0.35rem; }
+    .outcome-body { font-size: 0.82rem; line-height: 1.65; color: rgba(26,46,26,0.55); font-weight: 300; }
 
-    /* ── OVERVIEW ── */
-    .overview {
-      background: var(--cream);
-      padding: 5rem 3.5rem;
-    }
-
-    .overview-inner {
-      display: grid; grid-template-columns: 1fr 1.4fr;
-      gap: 5rem; max-width: 1200px; margin: 0 auto;
-    }
-
-    .section-label {
-      font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--sage); margin-bottom: 1rem; font-weight: 500;
-    }
-
-    .overview-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem; font-weight: 700;
-      color: var(--forest); line-height: 1.25; margin-bottom: 2rem;
-    }
-
-    .overview-quote {
-      font-family: 'Playfair Display', serif;
-      font-style: italic; font-size: 1.05rem;
-      color: var(--clay); line-height: 1.65;
-      border-left: 3px solid var(--clay);
-      padding-left: 1.25rem;
-    }
-
-    .overview-body {
-      font-size: 1rem; line-height: 1.85;
-      color: rgba(26,46,26,0.72); margin-bottom: 1rem;
-    }
-
-    .outcomes-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 1rem; margin-top: 2.5rem;
-    }
-
-    .outcome-card {
-      background: var(--white);
-      border: 1px solid rgba(74,103,65,0.12);
-      border-radius: 14px;
-      padding: 1.25rem 1.4rem;
-    }
-
-    .outcome-number { font-size: 0.65rem; font-weight: 500; color: var(--sage); letter-spacing: 0.1em; margin-bottom: 0.3rem; }
-    .outcome-icon { font-size: 1.3rem; margin-bottom: 0.4rem; }
-    .outcome-title { font-weight: 500; font-size: 0.82rem; color: var(--forest); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.06em; }
-    .outcome-body { font-size: 0.8rem; line-height: 1.55; color: rgba(26,46,26,0.65); }
-
-    /* ── CONCEPTS ── */
-    .concepts {
-      background: var(--forest);
-      padding: 5rem 3.5rem;
-    }
-
+    /* KEY IDEAS — FLIP CARDS */
+    .concepts { background: var(--forest); padding: 4rem 3.5rem; border-top: 1px solid rgba(122,158,110,0.1); }
     .concepts-inner { max-width: 1200px; margin: 0 auto; }
+    .concepts-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; }
+    .concepts-heading { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--cream); margin-top: 0.4rem; }
+    .concepts-count { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.25); }
+    .concepts-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .concept-flip { perspective: 800px; cursor: pointer; height: 150px; }
+    .concept-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s ease; transform-style: preserve-3d; }
+    .concept-flip.flipped .concept-flip-inner { transform: rotateY(180deg); }
+    .concept-front, .concept-back { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 12px; padding: 1.75rem; display: flex; flex-direction: column; justify-content: center; }
+    .concept-front { background: var(--sand); border: 1px solid rgba(232,213,176,0.6); }
+    .concept-back { background: var(--cream); border: 1px solid rgba(232,213,176,0.6); transform: rotateY(180deg); }
+    .concept-tag { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ember); margin-bottom: 0.75rem; }
+    .concept-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--forest); line-height: 1.3; }
+    .concept-def { font-size: 0.85rem; line-height: 1.75; color: rgba(26,46,26,0.7); font-weight: 300; }
+    .concept-back .concept-tag { color: var(--clay); }
 
-    .concepts-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 3rem;
-    }
-
-    .concepts-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem; color: var(--cream); font-weight: 700;
-    }
-
-    .concepts-count {
-      font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
-      color: rgba(245,240,232,0.3);
-    }
-
-    .concepts-list {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
-    }
-
-    .concept-item {
-      background: linear-gradient(145deg, rgba(122,158,110,0.3) 0%, rgba(74,103,65,0.2) 50%, rgba(122,158,110,0.12) 100%);
-      border: 1px solid rgba(122,158,110,0.4);
-      border-top: 3px solid var(--clay);
-      border-radius: 16px;
-      padding: 2.5rem 2.2rem;
-      transition: transform 0.25s ease, background 0.25s, border-color 0.25s, box-shadow 0.25s;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
-    }
-    .concept-item:hover {
-      background: linear-gradient(145deg, rgba(122,158,110,0.42) 0%, rgba(74,103,65,0.3) 50%, rgba(122,158,110,0.18) 100%);
-      border-color: rgba(122,158,110,0.65);
-      transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-    }
-
-    .concept-tag {
-      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--ember); margin-bottom: 1rem;
-    }
-
-    .concept-name {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.35rem; color: var(--white);
-      margin-bottom: 1rem; font-weight: 700;
-      line-height: 1.3;
-    }
-
-    .concept-def {
-      font-size: 0.92rem; line-height: 1.75;
-      color: rgba(245,240,232,0.72); font-weight: 300;
-    }
-
-    /* ── BEGIN ── */
-    .begin-section {
-      background: var(--cream);
-      padding: 5rem 3.5rem;
-      display: flex; justify-content: space-between;
-      align-items: center; gap: 4rem;
-      border-top: 1px solid rgba(74,103,65,0.1);
-    }
-
-    .begin-text { flex: 1; }
-
-    .begin-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem; color: var(--forest);
-      font-weight: 700; margin-bottom: 0.75rem;
-    }
-
-    .begin-sub {
-      font-size: 1rem; line-height: 1.75;
-      color: rgba(26,46,26,0.6); max-width: 520px;
-    }
-
-    .begin-action {
-      display: flex; flex-direction: column;
-      align-items: flex-end; gap: 0.75rem; flex-shrink: 0;
-    }
-
-    .btn-begin {
-      display: inline-flex; align-items: center; gap: 1rem;
-      background: var(--clay); color: var(--white);
-      font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
-      font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
-      text-decoration: none;
-      padding: 1rem 2rem; border-radius: 4px;
-      transition: background 0.2s;
-    }
+    /* BEGIN CTA */
+    .begin-section { background: var(--cream); padding: 4rem 3.5rem; display: flex; justify-content: space-between; align-items: center; gap: 4rem; }
+    .begin-text .begin-heading { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--forest); font-weight: 700; margin-bottom: 0.6rem; }
+    .begin-text .begin-sub { font-size: 1rem; line-height: 1.75; color: rgba(26,46,26,0.6); max-width: 480px; }
+    .begin-action { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; flex-shrink: 0; }
+    .btn-begin { display: inline-flex; align-items: center; gap: 1rem; background: var(--clay); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; padding: 1rem 2rem; border-radius: 4px; transition: background 0.2s; }
     .btn-begin:hover { background: var(--ember); }
-
-    .btn-begin .arrow {
-      width: 20px; height: 1px; background: currentColor;
-      position: relative; transition: width 0.25s ease;
-    }
+    .btn-begin .arrow { width: 20px; height: 1px; background: currentColor; position: relative; transition: width 0.25s; }
     .btn-begin:hover .arrow { width: 28px; }
-    .btn-begin .arrow::after {
-      content: '';
-      position: absolute; right: 0; top: -3px;
-      width: 7px; height: 7px;
-      border-right: 1px solid currentColor;
-      border-top: 1px solid currentColor;
-      transform: rotate(45deg);
-    }
+    .btn-begin .arrow::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border-right: 1px solid currentColor; border-top: 1px solid currentColor; transform: rotate(45deg); }
+    .time-note { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(26,46,26,0.35); }
 
-    .time-note {
-      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: rgba(26,46,26,0.35);
-    }
-
-    /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .page-layout { margin-left: 0; }
-      nav, .hero-content { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .top-nav, .hero-content { padding-left: 1.5rem; padding-right: 1.5rem; }
       .hero-stats { flex-wrap: wrap; }
       .stat { flex: 1 1 50%; }
       .overview { padding: 3rem 1.5rem; }
@@ -393,16 +149,24 @@
       .begin-section { flex-direction: column; align-items: flex-start; padding: 3rem 1.5rem; }
       .begin-action { align-items: flex-start; }
       .concepts-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .unit-framing { padding: 3rem 1.5rem; }
     }
   </style>
 </head>
 <body>
 
+<button class="sidebar-toggle" aria-label="Toggle navigation">
+  <span class="bar"></span>
+  <span class="bar"></span>
+  <span class="bar"></span>
+</button>
+<div class="sidebar-overlay"></div>
+
 <aside class="sidebar">
   <div class="sidebar-logo">EDCI 487<br>Climate Change Education<br>Week 1</div>
   <nav class="sidebar-nav">
-    <a class="nav-item active" href="week1-intro (1).html">
-      <span class="nav-num">↑</span>
+    <a class="nav-item active" href="index.html">
+      <span class="nav-num">&uarr;</span>
       <span class="nav-label">Intro &amp; Overview</span>
     </a>
     <a class="nav-item" href="w1-section1.html">
@@ -430,6 +194,7 @@
 
 <main class="page-layout">
 
+<!-- HERO -->
 <section class="hero">
   <div class="hero-bg">
     <div class="ring"></div><div class="ring"></div>
@@ -437,13 +202,13 @@
   </div>
   <div class="hero-slash"></div>
 
-  <nav>
-    <div class="nav-course">EDCI 487 · Climate Change Education</div>
+  <nav class="top-nav">
+    <div class="nav-course">EDCI 487 &middot; Climate Change Education</div>
     <div class="nav-week"><span></span> Week 1 of 12</div>
   </nav>
 
   <div class="hero-content">
-    <div class="week-label">Week 1 · Pre-Class Module</div>
+    <div class="week-label">Week 1 &middot; Pre-Class Module</div>
     <h1 class="hero-title">
       <span class="line-1">Climate</span>
       <span class="line-2">Emergency</span>
@@ -458,11 +223,11 @@
   <div class="hero-stats">
     <div class="stat">
       <div class="stat-number">15</div>
-      <div class="stat-label">Minutes — module</div>
+      <div class="stat-label">Minutes &mdash; module</div>
     </div>
     <div class="stat">
       <div class="stat-number">45</div>
-      <div class="stat-label">Minutes — video</div>
+      <div class="stat-label">Minutes &mdash; video</div>
     </div>
     <div class="stat">
       <div class="stat-number">1</div>
@@ -473,10 +238,19 @@
       <div class="stat-label">Reflection prompt</div>
     </div>
   </div>
+</section>
 
-  <div class="scroll-hint">
-    <div class="scroll-line"></div>
-    Scroll to explore
+<!-- UNIT FRAMING -->
+<section class="unit-framing">
+  <div class="unit-framing-inner">
+    <div class="unit-eyebrow">Part 1 &middot; Unit Framing Question</div>
+    <p class="unit-q">"What does the climate emergency actually mean for an educator — not just what to teach, but how to be present to it?"</p>
+    <p class="unit-desc">
+      This week asks a foundational question. Before we can teach about climate change,
+      we need to examine our own relationship with the Earth — and with the systems of thought
+      that have shaped how we understand that relationship. The readings and video this week
+      invite you to sit with that question before our first class meeting.
+    </p>
   </div>
 </section>
 
@@ -487,8 +261,9 @@
       <div class="section-label">Module Overview</div>
       <h2 class="overview-heading">Climate education begins with relationship</h2>
       <p style="font-size:1rem; line-height:1.8; color:rgba(26,46,26,0.6); font-weight:300; margin-top:1rem;">
-        This week asks a foundational question: what does the climate emergency actually mean
-        for an educator? Not just what to teach — but how to be present to it.
+        Before we can teach about climate change, we need to examine our own
+        relationship with the Earth — and with the stories we've inherited about
+        what it means to live on it.
       </p>
     </div>
     <div class="overview-right">
@@ -499,28 +274,25 @@
         in-class conversation.
       </p>
 
+      <p style="font-size:0.82rem; font-weight:500; letter-spacing:0.06em; color:var(--moss); margin-bottom:1rem;">Module Learning Objectives &mdash; by the end of this module, you will be able to:</p>
       <div class="outcomes-grid">
         <div class="outcome-card">
-          <div class="outcome-number">01</div>
-          <div class="outcome-icon">🌱</div>
+          <div class="outcome-number">LO1</div>
           <div class="outcome-title">Orient</div>
           <div class="outcome-body">Understand who Krenak is and why this text opens the course</div>
         </div>
         <div class="outcome-card">
-          <div class="outcome-number">02</div>
-          <div class="outcome-icon">🪨</div>
+          <div class="outcome-number">LO2</div>
           <div class="outcome-title">Question</div>
           <div class="outcome-body">Examine the assumptions behind how "humanity" separates itself from Earth</div>
         </div>
         <div class="outcome-card">
-          <div class="outcome-number">03</div>
-          <div class="outcome-icon">🌍</div>
+          <div class="outcome-number">LO3</div>
           <div class="outcome-title">Connect</div>
           <div class="outcome-body">Link Krenak's philosophy with the systems lens of the Superorganism video</div>
         </div>
         <div class="outcome-card">
-          <div class="outcome-number">04</div>
-          <div class="outcome-icon">✏️</div>
+          <div class="outcome-number">LO4</div>
           <div class="outcome-title">Reflect</div>
           <div class="outcome-body">Begin articulating your personal relationship with the climate emergency</div>
         </div>
@@ -529,7 +301,7 @@
   </div>
 </section>
 
-<!-- CONCEPTS -->
+<!-- KEY IDEAS — FLIP CARDS -->
 <section class="concepts">
   <div class="concepts-inner">
     <div class="concepts-header">
@@ -537,35 +309,44 @@
         <div class="section-label" style="color:var(--clay);">Key Ideas</div>
         <h2 class="concepts-heading">Three threads for this week</h2>
       </div>
-      <div class="concepts-count">3 of 3 ideas</div>
+      <div class="concepts-count">3 of 3 ideas &middot; Click to reveal</div>
     </div>
 
     <div class="concepts-list">
-      <div class="concept-item">
-        <div class="concept-tag">Idea 01</div>
-        <div class="concept-name">Earth as Organism, Not Resource</div>
-        <div class="concept-def">
-          Krenak argues we have severed ourselves from Earth by treating it as property
-          or raw material. His people's river, Watu, is not a resource — it is a grandfather.
-          This relational ontology is the starting point for the whole course.
+      <div class="concept-flip" onclick="this.classList.toggle('flipped')">
+        <div class="concept-flip-inner">
+          <div class="concept-front">
+            <div class="concept-tag">Idea 01</div>
+            <div class="concept-name">Earth as Organism, Not Resource</div>
+          </div>
+          <div class="concept-back">
+            <div class="concept-tag">Idea 01</div>
+            <div class="concept-def">Krenak argues we have severed ourselves from Earth by treating it as property. His people's river, Watu, is not a resource — it is a grandfather.</div>
+          </div>
         </div>
       </div>
-      <div class="concept-item">
-        <div class="concept-tag">Idea 02</div>
-        <div class="concept-name">The "Humanity Club" &amp; Its Exclusions</div>
-        <div class="concept-def">
-          The idea of a singular, universal "humanity" has historically been used to justify
-          colonization, displacement, and the erasure of Indigenous ways of knowing.
-          Who gets counted as fully human — and who doesn't?
+      <div class="concept-flip" onclick="this.classList.toggle('flipped')">
+        <div class="concept-flip-inner">
+          <div class="concept-front">
+            <div class="concept-tag">Idea 02</div>
+            <div class="concept-name">The "Humanity Club" &amp; Its Exclusions</div>
+          </div>
+          <div class="concept-back">
+            <div class="concept-tag">Idea 02</div>
+            <div class="concept-def">The idea of a singular "humanity" has historically justified colonization, displacement, and erasure of Indigenous ways of knowing.</div>
+          </div>
         </div>
       </div>
-      <div class="concept-item">
-        <div class="concept-tag">Idea 03</div>
-        <div class="concept-name">Dreaming as Resistance</div>
-        <div class="concept-def">
-          For Krenak, holding onto story, song, and dream is not escapism — it is how
-          Indigenous peoples have survived five hundred years of colonization. It is also
-          how we "postpone the end of the world."
+      <div class="concept-flip" onclick="this.classList.toggle('flipped')">
+        <div class="concept-flip-inner">
+          <div class="concept-front">
+            <div class="concept-tag">Idea 03</div>
+            <div class="concept-name">Dreaming as Resistance</div>
+          </div>
+          <div class="concept-back">
+            <div class="concept-tag">Idea 03</div>
+            <div class="concept-def">For Krenak, holding onto story, song, and dream is not escapism — it is how Indigenous peoples have survived five hundred years of colonization.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -590,5 +371,33 @@
 </section>
 
 </main>
+
+<script>
+  const toggle = document.querySelector('.sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.querySelector('.sidebar-overlay');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    toggle.classList.add('open');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+    toggle.classList.remove('open');
+  }
+
+  toggle.addEventListener('click', function () {
+    if (sidebar.classList.contains('open')) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+</script>
 </body>
 </html>

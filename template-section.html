@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- TEMPLATE: Update title -->
+  <title>Section X: TITLE — EDCI 487 Week X</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --forest:    #2d5a3f;
+      --near-black:#1c1a14;
+      --moss:      #4a6741;
+      --sage:      #7a9e6e;
+      --sage-pale: #deebd4;
+      --clay:      #c4622d;
+      --ember:     #e8874a;
+      --sand:      #e8d5b0;
+      --cream:     #f5f0e8;
+      --white:     #fefcf8;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--cream); color: var(--near-black); min-height: 100vh; }
+    body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0.035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 200px 200px; }
+
+    #progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--clay), var(--ember)); transform-origin: left; transform: scaleX(0); transition: transform 0.1s linear; z-index: 1000; }
+
+    /* HAMBURGER TOGGLE */
+    .sidebar-toggle { position: fixed; top: 1.25rem; left: 1.25rem; z-index: 200; width: 40px; height: 40px; background: rgba(47,74,47,0.9); border: 1px solid rgba(122,158,110,0.25); border-radius: 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 0; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: background 0.2s; }
+    .sidebar-toggle:hover { background: rgba(47,74,47,1); }
+    .sidebar-toggle .bar { display: block; width: 18px; height: 2px; background: var(--cream); border-radius: 1px; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .sidebar-toggle.open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .sidebar-toggle.open .bar:nth-child(2) { opacity: 0; }
+    .sidebar-toggle.open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* SIDEBAR OVERLAY */
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 140; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .sidebar-overlay.visible { opacity: 1; pointer-events: auto; }
+
+    /* SIDEBAR */
+    .sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; background: #2f4a2f; border-right: 1px solid rgba(122,158,110,0.2); z-index: 150; display: flex; flex-direction: column; align-items: stretch; padding: 4.5rem 0 2rem; overflow-y: auto; transform: translateX(-100%); transition: transform 0.3s ease; text-align: left; }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-logo { font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(122,158,110,0.5); padding: 0 1rem 1.5rem 2rem; border-bottom: 1px solid rgba(122,158,110,0.1); margin-bottom: 1.5rem; line-height: 1.6; }
+    .sidebar-nav { display: flex; flex-direction: column; padding: 0; }
+    .nav-item { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.7rem 1rem 0.7rem 2rem; position: relative; text-decoration: none; transition: background 0.2s ease; width: 100%; }
+    .nav-item:hover { background: rgba(245,240,232,0.04); }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--clay); }
+    .nav-num { font-size: 0.68rem; font-weight: 500; color: rgba(245,240,232,0.25); width: 1.5rem; flex-shrink: 0; text-align: left; }
+    .nav-item.active .nav-num { color: var(--clay); }
+    .nav-label { font-size: 0.75rem; font-weight: 300; line-height: 1.4; color: rgba(245,240,232,0.35); flex: 1; min-width: 0; text-align: left; }
+    .nav-item.active .nav-label { color: var(--cream); font-weight: 500; }
+    .nav-time { font-size: 0.6rem; color: rgba(245,240,232,0.22); letter-spacing: 0.06em; flex-shrink: 0; white-space: nowrap; }
+
+    .block-inner { width: min(1080px, 100%); margin: 0 auto; }
+
+    /* SECTION HEADER */
+    .section-header { background: var(--forest); padding: 2.5rem 3rem; }
+    .section-header-row { display: flex; align-items: center; gap: 1.5rem; }
+    .sh-number { font-family: 'Playfair Display', serif; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.2); line-height: 1; flex-shrink: 0; user-select: none; }
+    .sh-center { flex: 1; }
+    .sh-label { font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--clay); margin-bottom: 0.35rem; }
+    .sh-title { font-family: 'Playfair Display', serif; font-size: 2.8rem; font-weight: 700; color: var(--cream); line-height: 1.25; }
+    .sh-time { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,240,232,0.28); flex-shrink: 0; align-self: center; }
+
+    /* CONTENT BLOCKS */
+    .content-block { background: var(--white); padding: 3.5rem 3rem 2.5rem; }
+    .content-block.alt { background: var(--cream); }
+    .content-block p { font-size: 1rem; line-height: 1.9; color: rgba(26,46,26,0.75); margin-bottom: 0.5rem; }
+    .content-block p:last-child { margin-bottom: 0; }
+    .content-block strong { font-weight: 500; color: var(--near-black); }
+
+    /* SCROLL REVEAL */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal[data-delay="1"] { transition-delay: 0.1s; }
+    .reveal[data-delay="2"] { transition-delay: 0.2s; }
+    .reveal[data-delay="3"] { transition-delay: 0.3s; }
+
+    /* CHECKLIST — use for pre-class work lists */
+    .checklist-block { background: var(--sage-pale); padding: 3rem; }
+    .checklist-label { font-size: 0.85rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--moss); margin-bottom: 1.75rem; }
+    .checklist { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .checklist li { display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.95rem; line-height: 1.7; color: var(--near-black); background: rgba(255,255,255,0.7); border: 1px solid rgba(74,103,65,0.1); border-radius: 12px; padding: 1.4rem 1.5rem; }
+    .checklist li .check-num { font-size: 0.65rem; font-weight: 600; color: var(--clay); background: rgba(196,98,45,0.1); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0; }
+    .checklist li .check-time { font-size: 0.72rem; color: rgba(26,46,26,0.4); letter-spacing: 0.06em; margin-top: 0.2rem; }
+
+    /* DEFINITION CARD — use for key term definitions with source */
+    .definition-card { background: var(--sage-pale); border-left: 4px solid var(--clay); padding: 2.5rem 3rem; }
+    .definition-card-heading { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--forest); margin-bottom: 1rem; }
+    .definition-card-body { font-size: 1.05rem; line-height: 1.9; color: rgba(26,46,26,0.78); font-style: italic; }
+    .definition-card-attribution { font-size: 0.78rem; color: rgba(26,46,26,0.45); line-height: 1.6; margin-top: 0.5rem; }
+
+    /* CONCEPT GRID — use for breaking down a concept into numbered parts */
+    .concept-grid-section { background: var(--cream); padding: 3.5rem 3rem 2.5rem; }
+    .concept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 0.5rem; }
+    .concept-grid-card { background: var(--white); border: 1px solid rgba(74,103,65,0.12); border-radius: 12px; padding: 2rem 1.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .concept-grid-card .card-num { font-size: 0.65rem; font-weight: 600; color: var(--clay); background: rgba(196,98,45,0.1); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0; }
+    .concept-grid-card .card-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: var(--forest); }
+    .concept-grid-card .card-body { font-size: 0.95rem; line-height: 1.8; color: rgba(26,46,26,0.7); }
+
+    /* SAGE CALLOUT — use for source-attributed quotes */
+    .sage-callout { background: var(--sage-pale); border-left: 4px solid var(--moss); padding: 2.5rem 3rem; }
+    .sage-callout .callout-intro { font-size: 1rem; line-height: 1.9; color: rgba(26,46,26,0.75); margin-bottom: 1.5rem; }
+    .sage-callout .callout-quote { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.05rem; line-height: 1.85; color: rgba(26,46,26,0.7); padding-left: 1.5rem; border-left: 2px solid rgba(74,103,65,0.2); margin-bottom: 0.75rem; }
+    .sage-callout .callout-source { font-size: 0.78rem; color: rgba(26,46,26,0.45); padding-left: 1.5rem; }
+
+    /* CONTRAST BLOCK — use for standout content with clay accent */
+    .contrast-block { background: var(--cream); padding: 3rem 3rem 3rem 3.5rem; border-left: 4px solid var(--clay); }
+    .contrast-block .cb-heading { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--forest); margin-bottom: 1.25rem; }
+    .contrast-block p { font-size: 1rem; line-height: 1.9; color: rgba(26,46,26,0.75); margin-bottom: 0.75rem; }
+    .contrast-block p:last-child { margin-bottom: 0; }
+    .contrast-block .cb-source { font-size: 0.72rem; color: rgba(26,46,26,0.4); letter-spacing: 0.06em; margin-top: 1.25rem; }
+
+    /* PIVOT BLOCK — use for key turning-point statements */
+    .pivot-block { background: var(--clay); padding: 3rem; }
+    .pivot-block p { font-size: 1.15rem; line-height: 1.85; color: var(--white); }
+    .pivot-block p + p { margin-top: 1rem; }
+    .pivot-block strong { font-weight: 500; color: var(--white); }
+
+    /* PROMPT BLOCK — use for framed quotes on dark background */
+    .prompt-block { background: var(--forest); padding: 3rem; border: 1px solid rgba(122,158,110,0.2); }
+    .prompt-block-inner { margin: 0 auto; text-align: center; }
+    .prompt-block .pb-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,240,232,0.35); margin-bottom: 1.25rem; }
+    .prompt-block p { font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1.85; color: rgba(245,240,232,0.75); font-style: italic; margin-bottom: 0.5rem; }
+    .prompt-block .pb-attribution { font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-style: normal; color: rgba(245,240,232,0.4); letter-spacing: 0.04em; margin-top: 1rem; }
+
+    /* FACT STRIP — use for 3-column stat displays */
+    .fact-strip { background: var(--sage-pale); padding: 3rem; }
+    .fact-strip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    .fact-strip .fact-strip-source { font-size: 0.72rem; color: rgba(26,46,26,0.4); letter-spacing: 0.06em; margin-top: 1.5rem; text-align: right; }
+    .fact-card { background: rgba(255,255,255,0.75); border: 1px solid rgba(74,103,65,0.12); border-radius: 12px; padding: 1.75rem 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .fact-card .fc-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--moss); }
+    .fact-card .fc-number { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 900; color: var(--clay); line-height: 1.15; }
+    .fact-card .fc-desc { font-size: 0.88rem; line-height: 1.7; color: rgba(26,46,26,0.65); }
+
+    /* OVERSHOOT REVEAL — use for large centered stat displays */
+    .overshoot-reveal { background: linear-gradient(135deg, var(--clay), var(--ember)); padding: 4rem 3rem; text-align: center; }
+    .overshoot-reveal .or-pre { font-size: 0.82rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 0.75rem; }
+    .overshoot-reveal .or-big { font-family: 'Playfair Display', serif; font-size: 6rem; font-weight: 900; color: var(--white); line-height: 1.1; margin-bottom: 0.5rem; }
+    .overshoot-reveal .or-sub { font-size: 1.05rem; font-weight: 400; color: rgba(255,255,255,0.85); margin-bottom: 1.5rem; line-height: 1.6; }
+    .overshoot-reveal .or-body { font-size: 0.88rem; line-height: 1.8; color: rgba(255,255,255,0.65); max-width: 640px; margin: 0 auto; }
+
+    /* VIDEO THUMBNAIL — use for linking to external videos */
+    .video-embed { display: block; position: relative; width: 100%; padding-top: 56.25%; border: 2px solid var(--near-black); border-radius: 4px; overflow: hidden; background: var(--near-black); cursor: pointer; text-decoration: none; }
+    .video-thumb { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .video-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 72px; height: 72px; background: rgba(0,0,0,0.65); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .video-embed:hover .video-play { background: var(--clay); }
+    .video-play::after { content: ''; display: block; width: 0; height: 0; border-style: solid; border-width: 12px 0 12px 22px; border-color: transparent transparent transparent var(--white); margin-left: 4px; }
+    .video-meta { margin-top: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .video-meta span { font-size: 0.78rem; letter-spacing: 0.06em; color: rgba(26,46,26,0.45); }
+    .video-meta strong { font-weight: 500; color: rgba(26,46,26,0.65); }
+
+    /* REFLECTION SECTION — use for reflection prompts (no textarea) */
+    .reflection-section { background: var(--sage-pale); padding: 3.5rem 3rem 3rem; }
+    .reflection-heading { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--forest); margin-bottom: 0.4rem; }
+    .reflection-subhead { font-size: 0.95rem; line-height: 1.7; color: rgba(26,46,26,0.6); margin-bottom: 1.5rem; }
+    .reflection-options { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+    .reflection-options li { font-size: 0.95rem; line-height: 1.7; color: rgba(26,46,26,0.75); padding-left: 1.25rem; position: relative; }
+    .reflection-options li::before { content: ''; position: absolute; left: 0; top: 0.65em; width: 6px; height: 6px; border-radius: 50%; background: var(--clay); }
+
+    /* TRANSITION CARD */
+    .transition-card { padding: 3rem; background: var(--forest); }
+    .transition-card p { font-size: 1rem; line-height: 1.8; color: rgba(245,240,232,0.65); font-style: italic; font-family: 'Playfair Display', serif; }
+    .transition-card-line { width: 40px; height: 2px; background: var(--clay); margin-bottom: 1.5rem; }
+
+    /* CLOSING HERO — use for module-complete endings */
+    .closing-hero { background: var(--forest); padding: 5rem 3rem; text-align: center; }
+    .closing-hero-eyebrow { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--clay); margin-bottom: 1rem; }
+    .closing-hero-heading { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; color: var(--white); margin-bottom: 1.5rem; line-height: 1.15; }
+    .closing-hero-body { font-size: 1rem; line-height: 1.85; color: rgba(245,240,232,0.6); max-width: 640px; margin: 0 auto; }
+    .closing-hero-body p + p { margin-top: 1rem; }
+
+    /* TAKEAWAYS — use for numbered summary lists */
+    .takeaways-block { background: var(--cream); padding: 4rem 3rem; }
+    .takeaways-label { font-size: 0.85rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--moss); margin-bottom: 2rem; }
+    .takeaway-item { display: grid; grid-template-columns: 3rem 1fr; gap: 1.25rem; padding: 1.25rem 0; border-bottom: 1px solid rgba(74,103,65,0.1); align-items: baseline; }
+    .takeaway-item:last-child { border-bottom: none; }
+    .takeaway-num { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--clay); line-height: 1; }
+    .takeaway-text { font-size: 0.95rem; line-height: 1.7; color: rgba(26,46,26,0.7); }
+
+    /* BEGIN / CONTINUE CTA */
+    .begin-section { background: var(--cream); padding: 4rem 3rem; display: flex; justify-content: space-between; align-items: center; gap: 4rem; }
+    .begin-text .begin-heading { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--forest); font-weight: 700; margin-bottom: 0.6rem; }
+    .begin-text .begin-sub { font-size: 1rem; line-height: 1.75; color: rgba(26,46,26,0.6); max-width: 480px; }
+    .begin-action { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; flex-shrink: 0; }
+    .btn-begin { display: inline-flex; align-items: center; gap: 1rem; background: var(--clay); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; padding: 1rem 2rem; border-radius: 4px; transition: background 0.2s; }
+    .btn-begin:hover { background: var(--ember); }
+    .btn-begin .arrow { width: 20px; height: 1px; background: currentColor; position: relative; transition: width 0.25s; }
+    .btn-begin:hover .arrow { width: 28px; }
+    .btn-begin .arrow::after { content: ''; position: absolute; right: 0; top: -3px; width: 7px; height: 7px; border-right: 1px solid currentColor; border-top: 1px solid currentColor; transform: rotate(45deg); }
+    .time-note { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(26,46,26,0.35); }
+
+    @media (max-width: 768px) {
+      .section-header, .content-block, .checklist-block, .transition-card,
+      .begin-section, .definition-card, .concept-grid-section, .sage-callout,
+      .contrast-block, .pivot-block, .prompt-block, .fact-strip,
+      .overshoot-reveal, .reflection-section, .closing-hero, .takeaways-block { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .sh-number { font-size: 5rem; }
+      .begin-section { flex-direction: column; align-items: flex-start; }
+      .begin-action { align-items: flex-start; }
+      .checklist { grid-template-columns: 1fr; }
+      .concept-grid { grid-template-columns: 1fr; }
+      .fact-strip-grid { grid-template-columns: 1fr; }
+      .overshoot-reveal .or-big { font-size: 4rem; }
+    }
+  </style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<button class="sidebar-toggle" aria-label="Toggle navigation">
+  <span class="bar"></span>
+  <span class="bar"></span>
+  <span class="bar"></span>
+</button>
+<div class="sidebar-overlay"></div>
+
+<!--
+  TEMPLATE: Update sidebar
+  - Change "Week X" in sidebar-logo
+  - Update nav items: set href, label for each section
+  - Move "active" class to the current section's nav-item
+-->
+<aside class="sidebar">
+  <div class="sidebar-logo">EDCI 487<br>Climate Change Education<br>Week X</div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="index.html">
+      <span class="nav-num">&uarr;</span>
+      <span class="nav-label">Intro &amp; Overview</span>
+    </a>
+    <a class="nav-item active" href="section1.html">
+      <span class="nav-num">01</span>
+      <span class="nav-label">SECTION 1 TITLE</span>
+    </a>
+    <a class="nav-item" href="section2.html">
+      <span class="nav-num">02</span>
+      <span class="nav-label">SECTION 2 TITLE</span>
+    </a>
+    <a class="nav-item" href="section3.html">
+      <span class="nav-num">03</span>
+      <span class="nav-label">SECTION 3 TITLE</span>
+    </a>
+    <!-- Add or remove nav-items as needed -->
+  </nav>
+</aside>
+
+<!--
+  TEMPLATE: Update section number, title, and time
+-->
+<section class="section-header">
+  <div class="block-inner section-header-row">
+    <div class="sh-number">01</div>
+    <div class="sh-center">
+      <div class="sh-label">Section 1 of X</div>
+      <div class="sh-title reveal">SECTION TITLE</div>
+    </div>
+    <div class="sh-time reveal">~X minutes</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     CONTENT BLOCKS — Mix and match the components below.
+     Delete any you don't need. Reorder as your content requires.
+     ============================================================ -->
+
+
+<!-- CONTENT BLOCK (white background) -->
+<section class="content-block reveal">
+  <div class="block-inner">
+    <p>Your paragraph text goes here. Use <strong>bold for emphasis</strong>.</p>
+    <p>Second paragraph.</p>
+  </div>
+</section>
+
+<!-- CONTENT BLOCK ALT (cream background) — use to alternate visual rhythm -->
+<section class="content-block alt reveal">
+  <div class="block-inner">
+    <p>Alternate-background paragraph.</p>
+  </div>
+</section>
+
+<!-- CHECKLIST — use in Section 1 for pre-class work -->
+<!--
+<section class="checklist-block reveal">
+  <div class="block-inner">
+    <div class="checklist-label">YOUR CHECKLIST HEADING</div>
+    <ul class="checklist">
+      <li>
+        <span class="check-num">01</span>
+        <span>Task description with <strong>bold source name</strong></span>
+        <span class="check-time">~X minutes</span>
+      </li>
+      <li>
+        <span class="check-num">02</span>
+        <span>Task description</span>
+        <span class="check-time">~X minutes</span>
+      </li>
+    </ul>
+  </div>
+</section>
+-->
+
+<!-- DEFINITION CARD — use for key terms with academic source -->
+<!--
+<section class="definition-card reveal">
+  <div class="block-inner">
+    <div class="definition-card-heading">TERM</div>
+    <div class="definition-card-body">"Quoted definition from the source."</div>
+    <div class="definition-card-attribution">Author (Year). Title. Publisher.</div>
+  </div>
+</section>
+-->
+
+<!-- CONCEPT GRID — use to break a concept into 2-3 numbered parts -->
+<!--
+<section class="concept-grid-section reveal">
+  <div class="block-inner">
+    <p style="font-size:0.95rem; line-height:1.8; color:rgba(26,46,26,0.65); margin-bottom:1.25rem;">Lead-in sentence:</p>
+    <div class="concept-grid">
+      <div class="concept-grid-card">
+        <span class="card-num">01</span>
+        <div class="card-title">TITLE</div>
+        <div class="card-body">Description.</div>
+      </div>
+      <div class="concept-grid-card">
+        <span class="card-num">02</span>
+        <div class="card-title">TITLE</div>
+        <div class="card-body">Description.</div>
+      </div>
+      <div class="concept-grid-card">
+        <span class="card-num">03</span>
+        <div class="card-title">TITLE</div>
+        <div class="card-body">Description.</div>
+      </div>
+    </div>
+  </div>
+</section>
+-->
+
+<!-- SAGE CALLOUT — use for block quotes with attribution -->
+<!--
+<section class="sage-callout reveal">
+  <div class="block-inner">
+    <div class="callout-intro">Context sentence before the quote.</div>
+    <div class="callout-quote">"The quoted passage."</div>
+    <div class="callout-source">— Author (Year), p. XX</div>
+  </div>
+</section>
+-->
+
+<!-- CONTRAST BLOCK — use for standout content with clay left border -->
+<!--
+<section class="contrast-block reveal">
+  <div class="block-inner">
+    <div class="cb-heading">HEADING</div>
+    <p>Content paragraph.</p>
+    <div class="cb-source">Source: citation</div>
+  </div>
+</section>
+-->
+
+<!-- FACT STRIP — use for 3-column stat displays -->
+<!--
+<section class="fact-strip reveal">
+  <div class="block-inner">
+    <div class="fact-strip-grid">
+      <div class="fact-card">
+        <div class="fc-label">LABEL</div>
+        <div class="fc-number">NUMBER</div>
+        <div class="fc-desc">Description</div>
+      </div>
+      <div class="fact-card">
+        <div class="fc-label">LABEL</div>
+        <div class="fc-number">NUMBER</div>
+        <div class="fc-desc">Description</div>
+      </div>
+      <div class="fact-card">
+        <div class="fc-label">LABEL</div>
+        <div class="fc-number">NUMBER</div>
+        <div class="fc-desc">Description</div>
+      </div>
+    </div>
+    <div class="fact-strip-source">Source: citation</div>
+  </div>
+</section>
+-->
+
+<!-- LARGE STAT REVEAL — use for a single dramatic number -->
+<!--
+<section class="overshoot-reveal reveal">
+  <div class="block-inner">
+    <div class="or-pre">PRE-HEADLINE</div>
+    <div class="or-big">BIG NUMBER</div>
+    <div class="or-sub">One-line explanation.</div>
+    <div class="or-body">Supporting detail paragraph.</div>
+  </div>
+</section>
+-->
+
+<!-- PIVOT BLOCK — use for key turning-point statements (clay background) -->
+<!--
+<section class="pivot-block reveal">
+  <div class="block-inner">
+    <p>A pivotal statement in larger white text.</p>
+    <p><strong>A bold closing line.</strong></p>
+  </div>
+</section>
+-->
+
+<!-- PROMPT BLOCK — use for framed quotes on dark background -->
+<!--
+<div class="prompt-block reveal">
+  <div class="block-inner">
+    <div class="prompt-block-inner">
+      <div class="pb-label">Before you continue</div>
+      <p>"Quoted text."</p>
+      <div class="pb-attribution">— Author (Year), Title</div>
+    </div>
+  </div>
+</div>
+-->
+
+<!-- VIDEO THUMBNAIL — links to external video in new tab -->
+<!--
+<section class="content-block alt reveal">
+  <div class="block-inner">
+    <a class="video-embed" href="https://www.youtube.com/watch?v=VIDEO_ID" target="_blank" rel="noopener">
+      <img class="video-thumb" src="video-thumbnail.png" alt="Video title">
+      <div class="video-play"></div>
+    </a>
+    <div class="video-meta">
+      <span><strong>Title:</strong> VIDEO TITLE</span>
+      <span><strong>Creator:</strong> CREATOR</span>
+      <span><strong>Length:</strong> ~X minutes</span>
+    </div>
+  </div>
+</section>
+-->
+
+<!-- REFLECTION SECTION — use for reflection prompts (no textarea) -->
+<!--
+<section class="reflection-section reveal">
+  <div class="block-inner">
+    <h2 class="reflection-heading">HEADING</h2>
+    <p class="reflection-subhead">Instructions for the student.</p>
+    <ul class="reflection-options">
+      <li>"Prompt option 1"</li>
+      <li>"Prompt option 2"</li>
+      <li>"Prompt option 3"</li>
+    </ul>
+  </div>
+</section>
+-->
+
+<!-- TRANSITION CARD — use for atmospheric quotes between sections -->
+<!--
+<div class="transition-card reveal">
+  <div class="block-inner">
+    <div class="transition-card-line"></div>
+    <p>"An evocative quote to bridge sections."</p>
+  </div>
+</div>
+-->
+
+<!-- CLOSING HERO — use on the final section for module-complete message -->
+<!--
+<section class="closing-hero reveal">
+  <div class="block-inner">
+    <div class="closing-hero-eyebrow">Module complete</div>
+    <h2 class="closing-hero-heading">CLOSING HEADLINE</h2>
+    <div class="closing-hero-body">
+      <p>Closing paragraph 1.</p>
+      <p>Closing paragraph 2.</p>
+    </div>
+  </div>
+</section>
+-->
+
+<!-- TAKEAWAYS — use on the final section for numbered summary -->
+<!--
+<section class="takeaways-block reveal">
+  <div class="block-inner">
+    <div class="takeaways-label">What you've engaged with this week</div>
+    <div class="takeaway-item">
+      <span class="takeaway-num">01</span>
+      <span class="takeaway-text">Takeaway description.</span>
+    </div>
+    <div class="takeaway-item">
+      <span class="takeaway-num">02</span>
+      <span class="takeaway-text">Takeaway description.</span>
+    </div>
+  </div>
+</section>
+-->
+
+
+<!-- BRIDGE TO NEXT SECTION -->
+<section class="begin-section reveal">
+  <div class="block-inner" style="display:flex; justify-content:space-between; align-items:center; gap:4rem; width:100%; flex-wrap:wrap;">
+    <div class="begin-text">
+      <!-- TEMPLATE: Update heading, description, and link -->
+      <h2 class="begin-heading">Ready to continue?</h2>
+      <p class="begin-sub">
+        Description of what comes next.
+      </p>
+    </div>
+    <div class="begin-action">
+      <a class="btn-begin" href="section2.html">
+        Section 2 <span class="arrow"></span>
+      </a>
+      <span class="time-note">Next: NEXT SECTION TITLE</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Progress bar — fills to 100% as you scroll each page
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const scrolled = max > 0 ? Math.min(doc.scrollTop / max, 1) : 1;
+    document.getElementById('progress-bar').style.transform = `scaleX(${scrolled})`;
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Sidebar toggle
+  const toggle = document.querySelector('.sidebar-toggle');
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.querySelector('.sidebar-overlay');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    toggle.classList.add('open');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+    toggle.classList.remove('open');
+  }
+
+  toggle.addEventListener('click', function () {
+    if (sidebar.classList.contains('open')) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+</script>
+</body>
+</html>
